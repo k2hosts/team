@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Privacy Policy — UndoIt</title>
+<link rel="icon" type="image/png" href="undoit-logo.png"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Syne:wght@400;500;700;800&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --ink:#1A1A1A;--ink-light:#333;--muted:#6B6B6B;--faint:#B0B0B0;
+    --rule:#E0DDD8;--bg:#EDEBE6;--bg-card:#E4E1DB;--accent:#C1392B;--white:#F7F5F2;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--ink);font-family:'Syne',sans-serif;overflow-x:hidden;cursor:none;}
+  .cursor{position:fixed;width:8px;height:8px;background:var(--accent);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .2s,height .2s;}
+  .cursor-ring{position:fixed;width:32px;height:32px;border:1.5px solid var(--ink);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .22s ease-out,height .22s ease-out,opacity .2s;opacity:.25;}
+  body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9000;opacity:.35;}
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:20px 56px;border-bottom:1px solid var(--rule);background:rgba(237,235,230,.92);backdrop-filter:blur(12px);}
+  .nav-wordmark{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:900;letter-spacing:-.02em;color:var(--ink);display:flex;align-items:center;gap:12px;text-decoration:none;}
+  .nav-wordmark .logo-wrap{width:32px;height:32px;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  .nav-wordmark .logo-wrap img{width:100%;height:100%;object-fit:cover;}
+  .nav-links{display:flex;align-items:center;gap:40px;list-style:none;}
+  .nav-links a{font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s;}
+  .nav-links a:hover{color:var(--ink);}
+  .nav-right{display:flex;align-items:center;gap:10px;}
+  .nav-cta{font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;background:var(--ink);color:var(--bg);border:none;padding:10px 22px;cursor:none;text-decoration:none;transition:background .2s;}
+  .nav-cta:hover{background:var(--accent);}
+  .nav-discord{font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;background:transparent;color:var(--ink);border:1px solid var(--rule);padding:10px 22px;cursor:none;text-decoration:none;transition:border-color .2s,color .2s;}
+  .nav-discord:hover{border-color:var(--ink);color:var(--accent);}
+  .rule-strip{border:none;border-top:3px solid var(--ink);margin:0;}
+
+  .page-header{margin-top:81px;padding:72px 56px 56px;border-bottom:1px solid var(--rule);display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:end;}
+  .eyebrow{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:20px;display:flex;align-items:center;gap:12px;}
+  .eyebrow::before{content:'';display:block;width:24px;height:1px;background:var(--muted);}
+  .page-header h1{font-family:'Fraunces',serif;font-size:clamp(3rem,6vw,6rem);font-weight:900;letter-spacing:-.03em;line-height:.92;color:var(--ink);}
+  .page-header h1 em{font-style:italic;color:var(--accent);}
+  .page-header-right{display:flex;flex-direction:column;align-self:end;}
+  .meta-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-top:1px solid var(--rule);}
+  .meta-row:last-child{border-bottom:1px solid var(--rule);}
+  .meta-label{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);}
+  .meta-value{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--ink);}
+
+  .content-wrap{display:grid;grid-template-columns:280px 1fr;min-height:60vh;}
+  .toc{padding:48px 40px;border-right:1px solid var(--rule);position:sticky;top:81px;height:calc(100vh - 81px);overflow-y:auto;align-self:start;}
+  .toc-title{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:24px;}
+  .toc-list{list-style:none;display:flex;flex-direction:column;gap:2px;}
+  .toc-list a{display:flex;align-items:baseline;gap:10px;font-size:.82rem;color:var(--muted);text-decoration:none;padding:7px 12px;border-left:2px solid transparent;transition:color .2s,border-color .2s;line-height:1.4;}
+  .toc-list a:hover{color:var(--ink);border-left-color:var(--accent);}
+  .toc-list a .num{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--faint);flex-shrink:0;}
+
+  .article{padding:56px 72px 80px;}
+  .section-block{margin-bottom:64px;padding-bottom:64px;border-bottom:1px solid var(--rule);}
+  .section-block:last-child{border-bottom:none;margin-bottom:0;}
+  .section-num-tag{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);margin-bottom:12px;}
+  .section-block h2{font-family:'Fraunces',serif;font-size:2rem;font-weight:900;letter-spacing:-.02em;margin-bottom:28px;line-height:1.1;}
+  .section-block p{font-size:.95rem;color:var(--ink-light);line-height:1.8;margin-bottom:16px;}
+  .section-block p:last-child{margin-bottom:0;}
+  .section-block ul{padding-left:0;list-style:none;margin:20px 0;display:flex;flex-direction:column;gap:10px;}
+  .section-block li{font-size:.92rem;color:var(--ink-light);line-height:1.7;padding-left:20px;position:relative;}
+  .section-block ul li::before{content:'—';position:absolute;left:0;color:var(--accent);font-family:'DM Mono',monospace;font-size:.75rem;}
+
+  .plain-english{background:var(--bg-card);border-left:3px solid var(--accent);padding:18px 24px;margin:24px 0;display:flex;gap:14px;align-items:flex-start;}
+  .plain-english-label{font-family:'DM Mono',monospace;font-size:.55rem;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);white-space:nowrap;padding-top:3px;flex-shrink:0;}
+  .plain-english p{font-size:.88rem;color:var(--muted);line-height:1.7;margin:0;}
+  .plain-english strong{color:var(--ink);}
+
+  .data-table{width:100%;border-collapse:collapse;margin:24px 0;font-size:.85rem;}
+  .data-table th{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:left;padding:12px 16px;border-bottom:2px solid var(--ink);background:var(--bg-card);}
+  .data-table td{padding:14px 16px;border-bottom:1px solid var(--rule);color:var(--ink-light);vertical-align:top;line-height:1.6;}
+  .data-table tr:last-child td{border-bottom:none;}
+  .data-table tr:hover td{background:var(--bg-card);}
+  .tag{display:inline-block;font-family:'DM Mono',monospace;font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border:1px solid;margin-top:4px;}
+  .tag-stored{color:#3db85c;border-color:rgba(61,184,92,.3);background:rgba(61,184,92,.06);}
+  .tag-transient{color:var(--muted);border-color:var(--rule);background:transparent;}
+
+  a.inline-link{color:var(--ink);border-bottom:1px solid var(--accent);text-decoration:none;transition:color .2s;}
+  a.inline-link:hover{color:var(--accent);}
+
+  footer{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:3px solid var(--ink);}
+  .footer-col{padding:40px 56px;border-right:1px solid var(--rule);}
+  .footer-col:last-child{border-right:none;}
+  .footer-wordmark{font-family:'Fraunces',serif;font-size:2rem;font-weight:900;letter-spacing:-.02em;margin-bottom:10px;}
+  .footer-tagline{font-size:.85rem;color:var(--muted);line-height:1.6;}
+  .footer-label{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;}
+  .footer-links{list-style:none;display:flex;flex-direction:column;gap:10px;}
+  .footer-links a{font-size:.88rem;color:var(--ink);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .2s,color .2s;display:inline-block;}
+  .footer-links a:hover{border-color:var(--ink);color:var(--accent);}
+  .footer-copy{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;margin-top:24px;}
+
+  .reveal{opacity:0;transform:translateY(20px);transition:opacity .5s ease,transform .5s ease;}
+  .reveal.visible{opacity:1;transform:none;}
+
+  @media(max-width:1000px){
+    nav{padding:18px 24px;}.nav-links{display:none;}
+    .page-header{grid-template-columns:1fr;padding:48px 24px 40px;}
+    .content-wrap{grid-template-columns:1fr;}.toc{display:none;}
+    .article{padding:40px 24px 60px;}
+    .data-table{font-size:.78rem;}.data-table th,.data-table td{padding:10px 12px;}
+    footer{grid-template-columns:1fr;}.footer-col{padding:32px 24px;border-right:none;border-bottom:1px solid var(--rule);}
+  }
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<nav>
+  <a href="index.html" class="nav-wordmark">
+    <div class="logo-wrap"><img src="undoit-logo.png" alt="UndoIt"/></div>UndoIt
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html#projects">Projects</a></li>
+    <li><a href="index.html#team">Team</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="https://discord.gg/Y5G6eztztR" target="_blank" rel="noopener" class="nav-discord">Join Discord</a>
+    <a href="rickbot.html" class="nav-cta">RickBot</a>
+  </div>
+</nav>
+
+<hr class="rule-strip" style="margin-top:81px"/>
+
+<div class="page-header reveal">
+  <div>
+    <div class="eyebrow">Legal Documents &nbsp;/&nbsp; UndoIt</div>
+    <h1>Privacy<br><em>Policy</em></h1>
+  </div>
+  <div class="page-header-right">
+    <div class="meta-row"><span class="meta-label">Document</span><span class="meta-value">Privacy Policy</span></div>
+    <div class="meta-row"><span class="meta-label">Effective Date</span><span class="meta-value">January 1, 2025</span></div>
+    <div class="meta-row"><span class="meta-label">Last Updated</span><span class="meta-value">January 1, 2025</span></div>
+    <div class="meta-row"><span class="meta-label">Regulation</span><span class="meta-value">GDPR Compliant</span></div>
+  </div>
+</div>
+
+<hr class="rule-strip"/>
+
+<div class="content-wrap">
+  <nav class="toc" aria-label="Table of contents">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#overview"><span class="num">01</span> Overview</a></li>
+      <li><a href="#what-we-collect"><span class="num">02</span> What We Collect</a></li>
+      <li><a href="#how-we-use"><span class="num">03</span> How We Use Data</a></li>
+      <li><a href="#storage"><span class="num">04</span> Data Storage</a></li>
+      <li><a href="#sharing"><span class="num">05</span> Data Sharing</a></li>
+      <li><a href="#retention"><span class="num">06</span> Data Retention</a></li>
+      <li><a href="#your-rights"><span class="num">07</span> Your Rights (GDPR)</a></li>
+      <li><a href="#children"><span class="num">08</span> Children's Privacy</a></li>
+      <li><a href="#third-party"><span class="num">09</span> Third-Party Services</a></li>
+      <li><a href="#changes"><span class="num">10</span> Policy Changes</a></li>
+      <li><a href="#contact"><span class="num">11</span> Contact &amp; DPA</a></li>
+    </ul>
+  </nav>
+
+  <article class="article">
+
+    <div class="section-block reveal" id="overview">
+      <div class="section-num-tag">01</div>
+      <h2>Overview</h2>
+      <p>UndoIt takes your privacy seriously. This Privacy Policy explains what data we collect when you use our Services — including RickBot, our website, and our Discord community — how we use it, and what rights you have over it.</p>
+      <p>We operate in compliance with the EU General Data Protection Regulation (GDPR). If you are located in the European Economic Area (EEA), you have specific rights described in Section 07 of this policy.</p>
+      <div class="plain-english">
+        <span class="plain-english-label">Plain English</span>
+        <p>We collect only what we need to run our services. <strong>We don't sell your data. We don't share it with advertisers.</strong> We're GDPR-compliant and you can ask us to delete your data at any time.</p>
+      </div>
+    </div>
+
+    <div class="section-block reveal" id="what-we-collect">
+      <div class="section-num-tag">02</div>
+      <h2>What We Collect</h2>
+      <p>RickBot collects only the data it needs to function. Here is exactly what we store — and what we don't:</p>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Data Type</th>
+            <th>What It Is</th>
+            <th>Stored?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Guild (Server) IDs</strong></td>
+            <td>Unique Discord identifier for each server RickBot is added to</td>
+            <td><span class="tag tag-stored">Stored</span></td>
+          </tr>
+          <tr>
+            <td><strong>Bot Configuration Data</strong></td>
+            <td>Settings, role assignments, and moderation preferences set by Server Admins</td>
+            <td><span class="tag tag-stored">Stored</span></td>
+          </tr>
+          <tr>
+            <td><strong>Moderation Logs</strong></td>
+            <td>Records of actions RickBot takes — bans, kicks, and warnings — including the Discord User ID of the subject</td>
+            <td><span class="tag tag-stored">Stored</span></td>
+          </tr>
+          <tr>
+            <td><strong>Message Content (AutoMod)</strong></td>
+            <td>Message text scanned in real-time when AutoMod features are active. Content is checked against configured rules and immediately discarded — it is never written to disk</td>
+            <td><span class="tag tag-transient">Not Stored</span></td>
+          </tr>
+          <tr>
+            <td><strong>User IDs (general)</strong></td>
+            <td>Discord User IDs are only stored as part of moderation log entries. We do not build profiles or store User IDs outside of this context</td>
+            <td><span class="tag tag-transient">Logs only</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>We do <strong>not</strong> collect your real name, email address, IP address, payment details, or any data not listed above.</p>
+      <div class="plain-english">
+        <span class="plain-english-label">Plain English</span>
+        <p>RickBot stores your server's settings and a log of moderation actions. AutoMod reads messages to check for rule violations, but <strong>never saves them</strong>. That's it.</p>
+      </div>
+    </div>
+
+    <div class="section-block reveal" id="how-we-use">
+      <div class="section-num-tag">03</div>
+      <h2>How We Use Data</h2>
+      <p>We use collected data solely for the following purposes, each with a lawful basis under the GDPR:</p>
+      <ul>
+        <li><strong>Service operation (Legitimate Interest / Contract).</strong> To provide RickBot's moderation and security features as configured by Server Admins.</li>
+        <li><strong>Configuration persistence (Contract).</strong> To remember each server's settings between bot restarts.</li>
+        <li><strong>Moderation records (Legitimate Interest).</strong> To maintain an accurate log of moderation actions for Server Admin review and community accountability.</li>
+        <li><strong>Abuse prevention (Legitimate Interest).</strong> To detect and prevent misuse of our bots and services.</li>
+        <li><strong>Support (Legitimate Interest).</strong> To diagnose reported issues and provide assistance through our Discord server.</li>
+      </ul>
+      <p>We do not use your data for advertising, profiling, or any commercial purpose beyond the direct, stated operation of our Services.</p>
+    </div>
+
+    <div class="section-block reveal" id="storage">
+      <div class="section-num-tag">04</div>
+      <h2>Data Storage</h2>
+      <p>All data collected by UndoIt is stored on self-hosted infrastructure — meaning our servers are operated directly by the UndoIt team rather than delegated to a third-party cloud provider. This gives us direct control over the physical and logical security of your data.</p>
+      <p>Our security measures include:</p>
+      <ul>
+        <li>Strict access controls limiting data access to authorised UndoIt team members only.</li>
+        <li>Encrypted connections (TLS) for all data in transit between our infrastructure and Discord's API.</li>
+        <li>Regular review and improvement of our security posture.</li>
+      </ul>
+      <p>While we implement strong security practices, no system is completely immune to risk. In the event of a data breach that affects your rights and freedoms, we will notify relevant supervisory authorities as required by GDPR Article 33, and affected individuals where required under Article 34.</p>
+    </div>
+
+    <div class="section-block reveal" id="sharing">
+      <div class="section-num-tag">05</div>
+      <h2>Data Sharing</h2>
+      <p>We do not sell, rent, or trade your data to third parties under any circumstances.</p>
+      <p>We may share data only in the following very limited cases:</p>
+      <ul>
+        <li><strong>With your consent.</strong> If you explicitly authorise a specific data disclosure.</li>
+        <li><strong>Legal obligation.</strong> If required to comply with applicable EU or member state law, a court order, or a lawful request from a competent authority.</li>
+        <li><strong>Protection of rights.</strong> Where strictly necessary to protect the rights, property, or safety of UndoIt, our users, or third parties, as permitted by law.</li>
+      </ul>
+      <div class="plain-english">
+        <span class="plain-english-label">Plain English</span>
+        <p><strong>We will never sell your data.</strong> We only share it if the law requires it or if you ask us to.</p>
+      </div>
+    </div>
+
+    <div class="section-block reveal" id="retention">
+      <div class="section-num-tag">06</div>
+      <h2>Data Retention</h2>
+      <p>We retain data only for as long as necessary to fulfil the purpose for which it was collected, or as required by law. Our specific retention periods are:</p>
+      <ul>
+        <li><strong>Server configuration data</strong> is retained for as long as RickBot remains in your server. Upon RickBot's removal, this data is deleted within 30 days.</li>
+        <li><strong>Moderation logs</strong> are retained for up to 12 months from the date of the action, after which they are automatically purged. Server Admins can request earlier deletion.</li>
+        <li><strong>Message content processed by AutoMod</strong> is never written to storage and is discarded immediately after the real-time check completes.</li>
+      </ul>
+      <p>You may request deletion of your data at any time. See Section 07 for how to exercise this right.</p>
+    </div>
+
+    <div class="section-block reveal" id="your-rights">
+      <div class="section-num-tag">07</div>
+      <h2>Your Rights (GDPR)</h2>
+      <p>If you are in the European Economic Area, you have the following rights under the GDPR. We honour these rights for all users regardless of location:</p>
+      <ul>
+        <li><strong>Right of Access (Art. 15).</strong> You may request a copy of any personal data we hold relating to your Discord User ID or server.</li>
+        <li><strong>Right to Rectification (Art. 16).</strong> You may request that inaccurate or incomplete data be corrected.</li>
+        <li><strong>Right to Erasure (Art. 17).</strong> You may request deletion of your personal data ("right to be forgotten"). We will comply unless we have a legitimate legal basis to retain it.</li>
+        <li><strong>Right to Restriction (Art. 18).</strong> You may request that we restrict processing of your data in certain circumstances.</li>
+        <li><strong>Right to Data Portability (Art. 20).</strong> You may request an export of your data in a machine-readable format where technically feasible.</li>
+        <li><strong>Right to Object (Art. 21).</strong> You may object to processing carried out on the basis of legitimate interests.</li>
+        <li><strong>Right to Lodge a Complaint.</strong> You have the right to lodge a complaint with your local EU supervisory authority if you believe we have mishandled your data.</li>
+      </ul>
+      <p>To exercise any of these rights, contact us via our Discord server. We will respond to all valid requests within <strong>30 days</strong> as required by GDPR Article 12.</p>
+    </div>
+
+    <div class="section-block reveal" id="children">
+      <div class="section-num-tag">08</div>
+      <h2>Children's Privacy</h2>
+      <p>Our Services are not directed to children under the age of 13. We do not knowingly collect personal data from children under 13. If we become aware that such data has been collected, we will take prompt steps to delete it.</p>
+      <p>If you are a parent or guardian and believe your child has provided us with data, please contact us via Discord immediately.</p>
+    </div>
+
+    <div class="section-block reveal" id="third-party">
+      <div class="section-num-tag">09</div>
+      <h2>Third-Party Services</h2>
+      <p>Our Services operate through Discord's platform. Your use of Discord is independently governed by <a href="https://discord.com/privacy" class="inline-link" target="_blank" rel="noopener">Discord's Privacy Policy</a>. UndoIt is not responsible for Discord's data practices.</p>
+      <p>Beyond Discord, our Services are self-hosted. We do not use third-party analytics platforms, advertising networks, or SaaS data processors that would receive your data.</p>
+    </div>
+
+    <div class="section-block reveal" id="changes">
+      <div class="section-num-tag">10</div>
+      <h2>Policy Changes</h2>
+      <p>We may update this Privacy Policy from time to time. When we do, we will update the "Last Updated" date above. For material changes that affect your rights, we will provide advance notice via our Discord server where possible.</p>
+      <p>Continued use of our Services after changes take effect constitutes acceptance of the updated policy. We encourage periodic review of this page.</p>
+    </div>
+
+    <div class="section-block reveal" id="contact">
+      <div class="section-num-tag">11</div>
+      <h2>Contact &amp; Data Protection</h2>
+      <p>For all privacy-related enquiries, data subject requests, or complaints, please reach us via Discord. We aim to respond to all requests within 30 days in line with GDPR requirements.</p>
+      <ul>
+        <li><strong>Discord:</strong> <a href="https://discord.gg/Y5G6eztztR" class="inline-link" target="_blank" rel="noopener">discord.gg/Y5G6eztztR</a></li>
+      </ul>
+      <p>If you are unhappy with our response to a privacy concern, you have the right to escalate your complaint to your national data protection authority. EU users may also use the <a href="https://ec.europa.eu/consumers/odr" class="inline-link" target="_blank" rel="noopener">EU Online Dispute Resolution platform</a>.</p>
+    </div>
+
+  </article>
+</div>
+
+<hr class="rule-strip"/>
+
+<footer>
+  <div class="footer-col">
+    <div class="footer-wordmark">UndoIt</div>
+    <p class="footer-tagline">Small team. Big ideas. Building tools for better communities.</p>
+    <div class="footer-copy">&copy; 2025 UndoIt. All rights reserved.</div>
+  </div>
+  <div class="footer-col">
+    <div class="footer-label">Pages</div>
+    <ul class="footer-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="index.html#projects">Projects</a></li>
+      <li><a href="index.html#team">Team</a></li>
+      <li><a href="rickbot.html">RickBot</a></li>
+    </ul>
+  </div>
+  <div class="footer-col">
+    <div class="footer-label">Legal</div>
+    <ul class="footer-links">
+      <li><a href="privacy.html">Privacy Policy</a></li>
+      <li><a href="terms.html">Terms of Service</a></li>
+    </ul>
+    <div class="footer-copy" style="margin-top:16px">RickBot is not affiliated with or endorsed by Adult Swim, Cartoon Network, or the Rick and Morty franchise.</div>
+  </div>
+</footer>
+
+<script>
+  const cursor=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+  (function tick(){cursor.style.left=mx+'px';cursor.style.top=my+'px';rx+=(mx-rx)*.1;ry+=(my-ry)*.1;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(tick);})();
+  document.querySelectorAll('a,button').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{cursor.style.width='16px';cursor.style.height='16px';ring.style.width='48px';ring.style.height='48px';ring.style.opacity='.5';});
+    el.addEventListener('mouseleave',()=>{cursor.style.width='8px';cursor.style.height='8px';ring.style.width='32px';ring.style.height='32px';ring.style.opacity='.25';});
+  });
+  const obs=new IntersectionObserver(entries=>{entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*80);obs.unobserve(e.target);}});},{threshold:.08});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>
