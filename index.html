@@ -5,19 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>UndoIt</title>
 <link rel="icon" type="image/png" href="undoit-logo.png"/>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Syne:wght@400;500;700;800&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Syne:wght@400;500;700;800&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet"/>
 <style>
   :root {
-    --ink:        #0E0E0E;
-    --ink-light:  #2A2A2A;
-    --muted:      #888;
-    --faint:      #C8C8C8;
-    --rule:       #DCDCDC;
-    --bg:         #F5F2ED;
-    --bg-card:    #EDEAE4;
+    --ink:        #1A1A1A;
+    --ink-light:  #333;
+    --muted:      #6B6B6B;
+    --faint:      #B0B0B0;
+    --rule:       #E0DDD8;
+    --bg:         #EDEBE6;
+    --bg-card:    #E4E1DB;
     --accent:     #C1392B;
     --accent2:    #1A1A6E;
-    --white:      #FDFCFA;
+    --white:      #F7F5F2;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -75,12 +75,12 @@
     justify-content: space-between;
     padding: 20px 56px;
     border-bottom: 1px solid var(--rule);
-    background: rgba(245,242,237,0.92);
+    background: rgba(237,235,230,0.92);
     backdrop-filter: blur(12px);
   }
 
   .nav-wordmark {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Fraunces', serif;
     font-size: 1.5rem;
     font-weight: 900;
     letter-spacing: -0.02em;
@@ -90,23 +90,18 @@
     gap: 12px;
     text-decoration: none;
   }
-  .nav-wordmark .logo-placeholder {
+  .nav-wordmark .logo-wrap {
     width: 32px; height: 32px;
-    background: var(--ink);
+    background: #111;
     border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
   }
-  .nav-wordmark .logo-placeholder img {
+  .nav-wordmark .logo-wrap img {
     width: 100%; height: 100%;
     object-fit: cover;
-  }
-  .nav-wordmark .logo-placeholder span {
-    color: var(--bg);
-    font-size: 0.7rem;
-    font-family: 'DM Mono', monospace;
   }
 
   .nav-links {
@@ -126,6 +121,12 @@
   }
   .nav-links a:hover { color: var(--ink); }
 
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
   .nav-cta {
     font-family: 'DM Mono', monospace;
     font-size: 0.7rem;
@@ -141,6 +142,21 @@
   }
   .nav-cta:hover { background: var(--accent); }
 
+  .nav-discord {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--rule);
+    padding: 10px 22px;
+    cursor: none;
+    text-decoration: none;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .nav-discord:hover { border-color: var(--ink); color: var(--accent); }
+
   /* =================== HERO =================== */
   .hero {
     min-height: 100vh;
@@ -155,7 +171,6 @@
     justify-content: flex-end;
     padding: 80px 56px;
     border-right: 1px solid var(--rule);
-    position: relative;
   }
 
   .hero-issue {
@@ -177,7 +192,7 @@
   }
 
   .hero-title {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Fraunces', serif;
     font-size: clamp(4rem, 7vw, 7.5rem);
     font-weight: 900;
     line-height: 0.9;
@@ -206,20 +221,16 @@
     justify-content: center;
     align-items: center;
     padding: 80px 56px;
-    position: relative;
-    overflow: hidden;
   }
 
-  /* Logo placeholder block */
   .logo-block {
     width: 240px; height: 240px;
     border: 1px solid var(--rule);
-    background: var(--bg-card);
+    background: #111;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 12px;
     position: relative;
     transition: transform 0.4s ease;
   }
@@ -240,17 +251,10 @@
     text-align: center;
     padding: 8px;
   }
-  .logo-placeholder-text {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--muted);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
 
   .hero-right-label {
     margin-top: 32px;
-    font-family: 'Playfair Display', serif;
+    font-family: 'Fraunces', serif;
     font-size: 2.5rem;
     font-weight: 900;
     letter-spacing: -0.02em;
@@ -265,7 +269,6 @@
     margin-top: 6px;
   }
 
-  /* Big decorative rule */
   .rule-strip {
     border: none;
     border-top: 3px solid var(--ink);
@@ -281,7 +284,7 @@
     border-bottom: 1px solid var(--rule);
   }
   .section-header h2 {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Fraunces', serif;
     font-size: clamp(2rem, 4vw, 3.5rem);
     font-weight: 900;
     letter-spacing: -0.02em;
@@ -334,7 +337,7 @@
 
   .project-logo {
     width: 64px; height: 64px;
-    background: var(--ink);
+    background: #111;
     border-radius: 8px;
     margin-bottom: 24px;
     display: flex;
@@ -357,7 +360,7 @@
   }
 
   .project-name {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Fraunces', serif;
     font-size: 1.8rem;
     font-weight: 900;
     letter-spacing: -0.02em;
@@ -408,7 +411,6 @@
   }
   .project-link:hover { color: var(--accent); border-color: var(--accent); }
 
-  /* Coming soon card */
   .project-card.coming-soon {
     opacity: 0.45;
     pointer-events: none;
@@ -441,7 +443,6 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    position: relative;
   }
   .pfp img {
     width: 100%; height: 100%;
@@ -458,7 +459,7 @@
   }
 
   .member-name {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Fraunces', serif;
     font-size: 1.3rem;
     font-weight: 700;
     letter-spacing: -0.01em;
@@ -478,7 +479,6 @@
     line-height: 1.6;
   }
 
-  /* Placeholder card */
   .team-card.placeholder {
     display: flex;
     flex-direction: column;
@@ -517,7 +517,7 @@
   .footer-col:last-child { border-right: none; }
 
   .footer-wordmark {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Fraunces', serif;
     font-size: 2rem;
     font-weight: 900;
     letter-spacing: -0.02em;
@@ -595,9 +595,8 @@
 <!-- NAV -->
 <nav>
   <a href="#" class="nav-wordmark">
-    <div class="logo-placeholder">
-      <!-- Replace with: <img src="undoit-logo.png" alt="UndoIt"/> -->
-      <span>U</span>
+    <div class="logo-wrap">
+      <img src="undoit-logo.png" alt="UndoIt"/>
     </div>
     UndoIt
   </a>
@@ -605,7 +604,10 @@
     <li><a href="#projects">Projects</a></li>
     <li><a href="#team">Team</a></li>
   </ul>
-  <a href="rickbot.html" class="nav-cta">RickBot</a>
+  <div class="nav-right">
+    <a href="https://discord.gg/Y5G6eztztR" target="_blank" rel="noopener" class="nav-discord">Join Discord</a>
+    <a href="rickbot.html" class="nav-cta">RickBot</a>
+  </div>
 </nav>
 
 <!-- HERO -->
@@ -618,11 +620,8 @@
   </div>
 
   <div class="hero-right reveal">
-    <!-- TEAM LOGO: replace the placeholder below with your actual logo -->
-    <!-- <img src="undoit-logo.png" alt="UndoIt Logo" style="width:200px"/> -->
     <div class="logo-block">
-      <div class="logo-placeholder-text">Team Logo</div>
-      <div class="logo-placeholder-text" style="font-size:0.5rem;margin-top:4px">undoit-logo.png</div>
+      <img src="undoit-logo.png" alt="UndoIt Logo"/>
       <div class="logo-block-label">UndoIt</div>
     </div>
     <div class="hero-right-label">UndoIt</div>
@@ -644,8 +643,7 @@
     <div class="project-card reveal">
       <div class="project-tag">Discord Bot</div>
       <div class="project-logo">
-        <!-- Replace with: <img src="rickbot-logo.png" alt="RickBot"/> -->
-        <div class="project-logo-placeholder">Logo</div>
+        <img src="rickbot-logo.png" alt="RickBot"/>
       </div>
       <div class="project-name">RickBot</div>
       <p class="project-desc">A powerful Discord security bot featuring anti-nuke protection, raid shields, AutoMod, and link filtering. Built for communities that take safety seriously.</p>
