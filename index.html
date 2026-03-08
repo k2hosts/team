@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>UndoIt</title>
+<link rel="icon" type="image/png" href="undoit-logo.png"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Syne:wght@400;500;700;800&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --ink:        #0E0E0E;
+    --ink-light:  #2A2A2A;
+    --muted:      #888;
+    --faint:      #C8C8C8;
+    --rule:       #DCDCDC;
+    --bg:         #F5F2ED;
+    --bg-card:    #EDEAE4;
+    --accent:     #C1392B;
+    --accent2:    #1A1A6E;
+    --white:      #FDFCFA;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Syne', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    position: fixed;
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: width 0.2s, height 0.2s;
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 32px; height: 32px;
+    border: 1.5px solid var(--ink);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: width 0.22s ease-out, height 0.22s ease-out, opacity 0.2s;
+    opacity: 0.25;
+  }
+
+  /* Grain overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9000;
+    opacity: 0.35;
+  }
+
+  /* =================== NAV =================== */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 56px;
+    border-bottom: 1px solid var(--rule);
+    background: rgba(245,242,237,0.92);
+    backdrop-filter: blur(12px);
+  }
+
+  .nav-wordmark {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+  }
+  .nav-wordmark .logo-placeholder {
+    width: 32px; height: 32px;
+    background: var(--ink);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .nav-wordmark .logo-placeholder img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+  .nav-wordmark .logo-placeholder span {
+    color: var(--bg);
+    font-size: 0.7rem;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    list-style: none;
+  }
+  .nav-links a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--ink); }
+
+  .nav-cta {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--ink);
+    color: var(--bg);
+    border: none;
+    padding: 10px 22px;
+    cursor: none;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+  .nav-cta:hover { background: var(--accent); }
+
+  /* =================== HERO =================== */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding-top: 81px;
+  }
+
+  .hero-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 80px 56px;
+    border-right: 1px solid var(--rule);
+    position: relative;
+  }
+
+  .hero-issue {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .hero-issue::before {
+    content: '';
+    display: block;
+    width: 24px; height: 1px;
+    background: var(--muted);
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(4rem, 7vw, 7.5rem);
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    margin-bottom: 40px;
+  }
+  .hero-title em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-desc {
+    font-size: 1rem;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 400px;
+    font-weight: 400;
+    border-left: 2px solid var(--accent);
+    padding-left: 20px;
+  }
+
+  .hero-right {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 80px 56px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Logo placeholder block */
+  .logo-block {
+    width: 240px; height: 240px;
+    border: 1px solid var(--rule);
+    background: var(--bg-card);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    position: relative;
+    transition: transform 0.4s ease;
+  }
+  .logo-block:hover { transform: scale(1.02); }
+  .logo-block img {
+    width: 160px; height: 160px;
+    object-fit: contain;
+  }
+  .logo-block-label {
+    position: absolute;
+    bottom: -1px; left: -1px; right: -1px;
+    background: var(--ink);
+    color: var(--bg);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 8px;
+  }
+  .logo-placeholder-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .hero-right-label {
+    margin-top: 32px;
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+  .hero-right-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  /* Big decorative rule */
+  .rule-strip {
+    border: none;
+    border-top: 3px solid var(--ink);
+    margin: 0;
+  }
+
+  /* =================== SECTION SHARED =================== */
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 40px 56px 32px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .section-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+  }
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* =================== PROJECTS =================== */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .project-card {
+    padding: 48px 40px;
+    border-right: 1px solid var(--rule);
+    position: relative;
+    transition: background 0.3s;
+    overflow: hidden;
+  }
+  .project-card:last-child { border-right: none; }
+  .project-card:hover { background: var(--bg-card); }
+
+  .project-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+  .project-card:hover::before { transform: scaleX(1); }
+
+  .project-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .project-logo {
+    width: 64px; height: 64px;
+    background: var(--ink);
+    border-radius: 8px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .project-logo img {
+    width: 100%; height: 100%;
+    object-fit: contain;
+  }
+  .project-logo-placeholder {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: center;
+    padding: 4px;
+  }
+
+  .project-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+    line-height: 1;
+  }
+
+  .project-desc {
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.65;
+    margin-bottom: 28px;
+  }
+
+  .project-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--rule);
+    padding: 5px 12px;
+  }
+  .project-status .dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: #3db85c;
+    animation: blink 2s infinite;
+  }
+  .project-status .dot.dev { background: var(--accent); animation: none; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .project-link {
+    display: inline-block;
+    margin-top: 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 2px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .project-link:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* Coming soon card */
+  .project-card.coming-soon {
+    opacity: 0.45;
+    pointer-events: none;
+  }
+  .project-card.coming-soon .project-tag { color: var(--muted); }
+
+  /* =================== TEAM =================== */
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .team-card {
+    padding: 48px 36px;
+    border-right: 1px solid var(--rule);
+    position: relative;
+    transition: background 0.3s;
+  }
+  .team-card:last-child { border-right: none; }
+  .team-card:hover { background: var(--bg-card); }
+
+  .pfp {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 1px solid var(--rule);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+  .pfp img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+  .pfp-placeholder {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: center;
+  }
+
+  .member-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 6px;
+  }
+  .member-role {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  .member-bio {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* Placeholder card */
+  .team-card.placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border: 1px dashed var(--rule);
+    background: transparent;
+    cursor: default;
+  }
+  .team-card.placeholder .plus {
+    font-size: 2rem;
+    color: var(--faint);
+    margin-bottom: 12px;
+    font-weight: 300;
+  }
+  .team-card.placeholder p {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+
+  /* =================== FOOTER =================== */
+  footer {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    border-top: 3px solid var(--ink);
+  }
+
+  .footer-col {
+    padding: 40px 56px;
+    border-right: 1px solid var(--rule);
+  }
+  .footer-col:last-child { border-right: none; }
+
+  .footer-wordmark {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    margin-bottom: 10px;
+  }
+  .footer-tagline {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .footer-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .footer-links {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .footer-links a {
+    font-size: 0.88rem;
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s, color 0.2s;
+    display: inline-block;
+  }
+  .footer-links a:hover { border-color: var(--ink); color: var(--accent); }
+
+  .footer-copy {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    color: var(--faint);
+    text-transform: uppercase;
+    margin-top: 24px;
+  }
+
+  /* =================== REVEAL =================== */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  /* =================== RESPONSIVE =================== */
+  @media (max-width: 1000px) {
+    nav { padding: 18px 24px; }
+    .nav-links { display: none; }
+    .hero { grid-template-columns: 1fr; min-height: auto; }
+    .hero-left { padding: 60px 24px 40px; border-right: none; border-bottom: 1px solid var(--rule); }
+    .hero-right { padding: 40px 24px; }
+    .section-header { padding: 32px 24px 24px; }
+    .projects-grid { grid-template-columns: 1fr; }
+    .project-card { border-right: none; border-bottom: 1px solid var(--rule); }
+    .team-grid { grid-template-columns: 1fr 1fr; }
+    .team-card { border-bottom: 1px solid var(--rule); }
+    footer { grid-template-columns: 1fr; }
+    .footer-col { padding: 32px 24px; border-right: none; border-bottom: 1px solid var(--rule); }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-wordmark">
+    <div class="logo-placeholder">
+      <!-- Replace with: <img src="undoit-logo.png" alt="UndoIt"/> -->
+      <span>U</span>
+    </div>
+    UndoIt
+  </a>
+  <ul class="nav-links">
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#team">Team</a></li>
+  </ul>
+  <a href="rickbot.html" class="nav-cta">RickBot</a>
+</nav>
+
+<!-- HERO -->
+<hr class="rule-strip" style="margin-top:81px"/>
+<section class="hero" style="margin-top:0; padding-top:0">
+  <div class="hero-left reveal">
+    <div class="hero-issue">Est. 2025 &nbsp;/&nbsp; Building things that matter</div>
+    <h1 class="hero-title">We build.<br><em>You win.</em></h1>
+    <p class="hero-desc">UndoIt is a small independent dev team creating tools and bots that make online communities safer, smarter, and more fun to run.</p>
+  </div>
+
+  <div class="hero-right reveal">
+    <!-- TEAM LOGO: replace the placeholder below with your actual logo -->
+    <!-- <img src="undoit-logo.png" alt="UndoIt Logo" style="width:200px"/> -->
+    <div class="logo-block">
+      <div class="logo-placeholder-text">Team Logo</div>
+      <div class="logo-placeholder-text" style="font-size:0.5rem;margin-top:4px">undoit-logo.png</div>
+      <div class="logo-block-label">UndoIt</div>
+    </div>
+    <div class="hero-right-label">UndoIt</div>
+    <div class="hero-right-sub">Independent Dev Team</div>
+  </div>
+</section>
+<hr class="rule-strip"/>
+
+<!-- PROJECTS -->
+<div id="projects">
+  <div class="section-header reveal">
+    <h2>Projects</h2>
+    <span class="section-num">01 / Our Work</span>
+  </div>
+
+  <div class="projects-grid">
+
+    <!-- PROJECT: RickBot -->
+    <div class="project-card reveal">
+      <div class="project-tag">Discord Bot</div>
+      <div class="project-logo">
+        <!-- Replace with: <img src="rickbot-logo.png" alt="RickBot"/> -->
+        <div class="project-logo-placeholder">Logo</div>
+      </div>
+      <div class="project-name">RickBot</div>
+      <p class="project-desc">A powerful Discord security bot featuring anti-nuke protection, raid shields, AutoMod, and link filtering. Built for communities that take safety seriously.</p>
+      <div class="project-status">
+        <span class="dot dev"></span> In Development
+      </div>
+      <br/>
+      <a href="rickbot.html" class="project-link">View Page &rarr;</a>
+    </div>
+
+    <!-- PROJECT SLOT 2: Coming Soon -->
+    <div class="project-card coming-soon reveal">
+      <div class="project-tag">Coming Soon</div>
+      <div class="project-logo">
+        <div class="project-logo-placeholder">TBA</div>
+      </div>
+      <div class="project-name">???</div>
+      <p class="project-desc">Something new is in the works. Stay tuned.</p>
+      <div class="project-status">
+        <span class="dot dev"></span> Not Announced
+      </div>
+    </div>
+
+    <!-- PROJECT SLOT 3: Coming Soon -->
+    <div class="project-card coming-soon reveal">
+      <div class="project-tag">Coming Soon</div>
+      <div class="project-logo">
+        <div class="project-logo-placeholder">TBA</div>
+      </div>
+      <div class="project-name">???</div>
+      <p class="project-desc">Another idea brewing. Watch this space.</p>
+      <div class="project-status">
+        <span class="dot dev"></span> Not Announced
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TEAM -->
+<div id="team">
+  <div class="section-header reveal">
+    <h2>The Team</h2>
+    <span class="section-num">02 / People</span>
+  </div>
+
+  <div class="team-grid">
+
+    <!-- MEMBER: alogicalmind -->
+    <div class="team-card reveal">
+      <div class="pfp">
+        <!-- Replace with: <img src="your-pfp.png" alt="alogicalmind"/> -->
+        <div class="pfp-placeholder">Your PFP</div>
+      </div>
+      <div class="member-name">alogicalmind</div>
+      <div class="member-role">Founder &amp; Lead Developer</div>
+      <p class="member-bio">Creator of UndoIt and the mind behind RickBot. Handles everything from architecture to deployment.</p>
+    </div>
+
+    <!-- PLACEHOLDER SLOTS: remove when you add real members -->
+    <div class="team-card placeholder reveal">
+      <div class="plus">+</div>
+      <p>Open Slot</p>
+    </div>
+
+    <div class="team-card placeholder reveal">
+      <div class="plus">+</div>
+      <p>Open Slot</p>
+    </div>
+
+    <div class="team-card placeholder reveal">
+      <div class="plus">+</div>
+      <p>Open Slot</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-col">
+    <div class="footer-wordmark">UndoIt</div>
+    <p class="footer-tagline">Small team. Big ideas. Building tools for better communities.</p>
+    <div class="footer-copy">&copy; 2025 UndoIt. All rights reserved.</div>
+  </div>
+  <div class="footer-col">
+    <div class="footer-label">Pages</div>
+    <ul class="footer-links">
+      <li><a href="#">Home</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#team">Team</a></li>
+      <li><a href="rickbot.html">RickBot</a></li>
+    </ul>
+  </div>
+  <div class="footer-col">
+    <div class="footer-label">Legal</div>
+    <ul class="footer-links">
+      <li><a href="#">Privacy Policy</a></li>
+      <li><a href="#">Terms of Service</a></li>
+    </ul>
+    <div class="footer-copy" style="margin-top:16px">RickBot is not affiliated with or endorsed by Adult Swim, Cartoon Network, or the Rick and Morty franchise.</div>
+  </div>
+</footer>
+
+<script>
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  const ring   = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  (function tick() {
+    cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+    rx += (mx - rx) * 0.1; ry += (my - ry) * 0.1;
+    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+    requestAnimationFrame(tick);
+  })();
+  document.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.width = '16px'; cursor.style.height = '16px';
+      ring.style.width = '48px'; ring.style.height = '48px'; ring.style.opacity = '0.5';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.width = '8px'; cursor.style.height = '8px';
+      ring.style.width = '32px'; ring.style.height = '32px'; ring.style.opacity = '0.25';
+    });
+  });
+
+  // Scroll reveal
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 60);
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
